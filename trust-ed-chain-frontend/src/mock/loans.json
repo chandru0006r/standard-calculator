@@ -1,0 +1,20 @@
+[
+  {
+    "id": "loan-1001",
+    "studentId": "stu-001",
+    "amount": 25000,
+    "purpose": "Laptop repair",
+    "status": "pending",
+    "mentorApproved": false,
+    "investorFunded": false
+  },
+  {
+    "id": "loan-1002",
+    "studentId": "stu-002",
+    "amount": 15000,
+    "purpose": "Lab course fee",
+    "status": "approved",
+    "mentorApproved": true,
+    "investorFunded": false
+  }
+]
