@@ -1,0 +1,19 @@
+[
+  {
+    "id": "com-001",
+    "name": "IITB CS 2025",
+    "description": "Peer group for micro-funding and study support",
+    "members": ["stu-001", "stu-002"],
+    "microPolls": [
+      {
+        "id": "poll-1",
+        "studentId": "stu-001",
+        "title": "Need ₹500 for lab fee",
+        "amount": 500,
+        "votesFor": 5,
+        "votesAgainst": 1,
+        "status": "open"
+      }
+    ]
+  }
+]

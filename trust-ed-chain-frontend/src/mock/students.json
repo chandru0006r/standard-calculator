@@ -1,0 +1,26 @@
+[
+  {
+    "id": "stu-001",
+    "name": "Aarav Sharma",
+    "email": "aarav@example.edu",
+    "role": "student",
+    "college": "IIT Bombay",
+    "cgpa": 8.6,
+    "trustScore": 76,
+    "sefBalance": 12000,
+    "sefWithdrawalLimit": 15000,
+    "mentorId": "men-001"
+  },
+  {
+    "id": "stu-002",
+    "name": "Ananya Gupta",
+    "email": "ananya@example.edu",
+    "role": "student",
+    "college": "IIIT Hyderabad",
+    "cgpa": 9.1,
+    "trustScore": 88,
+    "sefBalance": 8000,
+    "sefWithdrawalLimit": 15000,
+    "mentorId": "men-002"
+  }
+]
