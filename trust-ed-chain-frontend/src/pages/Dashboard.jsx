@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useStudentStore } from '../store/student';
 import { useAuthStore } from '../store/auth';
 import TrustScoreChart from '../components/trust/TrustScoreChart.jsx';
-import LoanApplicationForm from '../components/investor/LoanApplicationForm.jsx';
 
 export default function Dashboard() {
   const { role } = useAuthStore();
@@ -54,8 +53,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      {role === 'student' && <LoanApplicationForm />}
     </div>
   );
 }

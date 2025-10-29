@@ -6,6 +6,7 @@ const ROLE_NAV = {
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/sef', label: 'SEF' },
     { to: '/community', label: 'Community Fund' },
+    { to: '/apply-loan', label: 'Apply for Investor-backed Loan' },
     { to: '/profile', label: 'Profile' },
   ],
   mentor: [
