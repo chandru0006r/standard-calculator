@@ -19,6 +19,7 @@ const ROLE_NAV = {
   ],
   investor: [
     { to: '/investor', label: 'Investor' },
+    { to: '/investor/requests', label: 'View Requests' },
     { to: '/profile', label: 'Profile' },
   ],
 };

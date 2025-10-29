@@ -65,6 +65,11 @@ function registerHandlers(m) {
 
   // Loans
   m.onGet(/\/api\/loans$/).reply(() => ok(loanList));
+  m.onGet(/\/api\/loans\/([^/]+)$/).reply((config) => {
+    const id = config.url.split('/').pop();
+    const loan = loanList.find((l) => l.id === id);
+    return loan ? ok(loan) : notFound('Loan not found');
+  });
   m.onPost('/api/loans/apply').reply((config) => {
     const body = JSON.parse(config.data || '{}');
     const isBig = (body.amount || 0) > 20000;
@@ -79,6 +84,7 @@ function registerHandlers(m) {
       trustScore: body.trustScore || 70,
       isBigLoan: isBig,
       documents: body.documents || [],
+      viewRequests: [],
       ...body,
     };
     loanList.unshift(newLoan);
@@ -109,6 +115,56 @@ function registerHandlers(m) {
     if (!loan) return notFound('Loan not found');
     loan.investorFunded = true;
     loan.status = 'funded';
+    return ok(loan);
+  });
+
+  // Investor view requests
+  m.onPost('/api/investor/request-view').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { loanId, investorId, investorName, investorEmail } = body;
+    const loan = loanList.find((l) => l.id === loanId);
+    if (!loan) return notFound('Loan not found');
+    loan.viewRequests = loan.viewRequests || [];
+    const existing = loan.viewRequests.find((r) => r.investorId === investorId);
+    if (existing) {
+      existing.status = existing.status === 'approved' ? 'approved' : 'pending';
+    } else {
+      loan.viewRequests.push({ investorId, investorName, investorEmail, status: 'pending', requestedAt: new Date().toISOString() });
+    }
+    return ok(loan);
+  });
+  m.onGet(/\/api\/investor\/requests$/).reply((config) => {
+    const investorId = new URL('http://x' + (config.url || '')).searchParams.get('investorId');
+    if (!investorId) return ok([]);
+    const result = [];
+    for (const loan of loanList) {
+      for (const req of (loan.viewRequests || [])) {
+        if (req.investorId === investorId) {
+          result.push({ loanId: loan.id, purpose: loan.purpose, amount: loan.amount, college: loan.college, status: req.status, investorId: req.investorId, investorName: req.investorName, investorEmail: req.investorEmail });
+        }
+      }
+    }
+    return ok(result);
+  });
+  m.onGet(/\/api\/student\/requests$/).reply((config) => {
+    const studentId = new URL('http://x' + (config.url || '')).searchParams.get('studentId');
+    if (!studentId) return ok([]);
+    const result = [];
+    for (const loan of loanList.filter((l) => l.studentId === studentId)) {
+      for (const req of (loan.viewRequests || [])) {
+        result.push({ loanId: loan.id, purpose: loan.purpose, amount: loan.amount, college: loan.college, status: req.status, investorId: req.investorId, investorName: req.investorName, investorEmail: req.investorEmail });
+      }
+    }
+    return ok(result);
+  });
+  m.onPost('/api/student/approve-view').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { loanId, investorId } = body;
+    const loan = loanList.find((l) => l.id === loanId);
+    if (!loan) return notFound('Loan not found');
+    const req = (loan.viewRequests || []).find((r) => r.investorId === investorId);
+    if (!req) return notFound('Request not found');
+    req.status = 'approved';
     return ok(loan);
   });
 

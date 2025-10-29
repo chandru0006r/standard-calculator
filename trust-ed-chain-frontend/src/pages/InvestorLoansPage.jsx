@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStudentStore } from '../store/student';
+import { useAuthStore } from '../store/auth';
 import InvestorLoanCard from '../components/investor/InvestorLoanCard.jsx';
 import FundLoanModal from '../components/investor/FundLoanModal.jsx';
 import ConnectWalletButton from '../components/web3/ConnectWalletButton.jsx';
 
 export default function InvestorLoansPage() {
-  const { loans, fetchLoans } = useStudentStore();
+  const { loans, fetchLoans, requestViewDetails } = useStudentStore();
+  const { user } = useAuthStore();
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [filters, setFilters] = useState({ college: 'all', minAmount: 0, maxAmount: 100000, minInterest: 0, maxInterest: 30, minTrust: 0, status: 'all' });
 
@@ -21,6 +23,8 @@ export default function InvestorLoansPage() {
     if ((l.trustScore ?? 0) < filters.minTrust) return false;
     return l.status !== 'repaid';
   }), [loans, filters]);
+
+  const onRequest = (loanId) => requestViewDetails({ loanId, investorId: user?.id, investorName: user?.name, investorEmail: user?.email });
 
   return (
     <div className="container-responsive space-y-6">
@@ -64,7 +68,7 @@ export default function InvestorLoansPage() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((l) => (
-          <InvestorLoanCard key={l.id} loan={l} onFund={() => setSelectedLoan(l)} />
+          <InvestorLoanCard key={l.id} loan={l} onFund={() => setSelectedLoan(l)} onRequest={() => onRequest(l.id)} />
         ))}
       </div>
 

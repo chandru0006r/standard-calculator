@@ -6,6 +6,8 @@ export const useStudentStore = create((set, get) => ({
   students: [],
   loans: [],
   communities: [],
+  investorRequests: [],
+  studentRequests: [],
   loading: false,
   error: null,
 
@@ -33,6 +35,40 @@ export const useStudentStore = create((set, get) => ({
     } catch (e) {
       // ignore for demo
     }
+  },
+
+  fetchLoan: async (loanId) => {
+    const res = await api.get(`/loans/${loanId}`);
+    const loans = get().loans;
+    const updated = loans.some(l => l.id === loanId) ? loans.map(l => l.id === loanId ? res.data : l) : [res.data, ...loans];
+    set({ loans: updated });
+    return res.data;
+  },
+
+  fetchInvestorRequests: async (investorId) => {
+    const res = await api.get(`/investor/requests?investorId=${investorId}`);
+    set({ investorRequests: res.data });
+    return res.data;
+  },
+
+  fetchStudentRequests: async (studentId) => {
+    const res = await api.get(`/student/requests?studentId=${studentId}`);
+    set({ studentRequests: res.data });
+    return res.data;
+  },
+
+  requestViewDetails: async ({ loanId, investorId, investorName, investorEmail }) => {
+    const res = await api.post('/investor/request-view', { loanId, investorId, investorName, investorEmail });
+    set({ loans: get().loans.map(l => l.id === loanId ? res.data : l) });
+    return res.data;
+  },
+
+  approveViewRequest: async ({ loanId, investorId }) => {
+    const res = await api.post('/student/approve-view', { loanId, investorId });
+    set({ loans: get().loans.map(l => l.id === loanId ? res.data : l) });
+    set({ studentRequests: get().studentRequests.map(r => r.loanId === loanId && r.investorId === investorId ? { ...r, status: 'approved' } : r) });
+    set({ investorRequests: get().investorRequests.map(r => r.loanId === loanId && r.investorId === investorId ? { ...r, status: 'approved' } : r) });
+    return res.data;
   },
 
   fetchCommunities: async () => {

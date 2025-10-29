@@ -4,13 +4,18 @@ import { useAuthStore } from '../store/auth';
 import TrustScoreChart from '../components/trust/TrustScoreChart.jsx';
 
 export default function Dashboard() {
-  const { role } = useAuthStore();
-  const { student, loans, fetchStudent, fetchLoans } = useStudentStore();
+  const { role, user } = useAuthStore();
+  const { student, loans, studentRequests, fetchStudent, fetchLoans, fetchStudentRequests, approveViewRequest } = useStudentStore();
 
   useEffect(() => {
-    if (role === 'student') fetchStudent('stu-001');
+    if (role === 'student') {
+      fetchStudent('stu-001');
+      fetchStudentRequests('stu-001');
+    }
     fetchLoans();
-  }, [role, fetchStudent, fetchLoans]);
+  }, [role, fetchStudent, fetchLoans, fetchStudentRequests]);
+
+  const pendingRequests = studentRequests.filter(r => r.status === 'pending');
 
   return (
     <div className="container-responsive space-y-6">
@@ -29,6 +34,24 @@ export default function Dashboard() {
           <div className="card p-4">
             <div className="text-sm text-gray-500">Mentor</div>
             <div className="text-2xl font-semibold mt-1">{student?.mentorId ?? '—'}</div>
+          </div>
+        </div>
+      )}
+
+      {role === 'student' && (
+        <div className="card p-4">
+          <h3 className="font-semibold mb-3">Investor Access Requests</h3>
+          <div className="divide-y divide-gray-200 dark:divide-gray-800">
+            {pendingRequests.length === 0 && <div className="text-sm text-gray-500">No pending requests.</div>}
+            {pendingRequests.map((r) => (
+              <div key={`${r.loanId}-${r.investorId}`} className="py-2 flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{r.investorName} ({r.investorEmail})</div>
+                  <div className="text-xs text-gray-500">Requested for: {r.purpose} • {r.college} • {r.loanId}</div>
+                </div>
+                <button className="btn-primary" onClick={() => approveViewRequest({ loanId: r.loanId, investorId: r.investorId })}>Approve</button>
+              </div>
+            ))}
           </div>
         </div>
       )}

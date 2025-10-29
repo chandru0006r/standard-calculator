@@ -12,7 +12,8 @@
     "college": "ABC College",
     "trustScore": 78,
     "isBigLoan": true,
-    "documents": []
+    "documents": [],
+    "viewRequests": []
   },
   {
     "id": "loan-1002",
@@ -27,6 +28,7 @@
     "college": "ABC College",
     "trustScore": 88,
     "isBigLoan": false,
-    "documents": []
+    "documents": [],
+    "viewRequests": []
   }
 ]
