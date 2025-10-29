@@ -6,7 +6,13 @@
     "purpose": "Laptop repair",
     "status": "pending",
     "mentorApproved": false,
-    "investorFunded": false
+    "investorFunded": false,
+    "adminApproved": false,
+    "interestRate": 10.5,
+    "college": "ABC College",
+    "trustScore": 78,
+    "isBigLoan": true,
+    "documents": []
   },
   {
     "id": "loan-1002",
@@ -15,6 +21,12 @@
     "purpose": "Lab course fee",
     "status": "approved",
     "mentorApproved": true,
-    "investorFunded": false
+    "investorFunded": false,
+    "adminApproved": false,
+    "interestRate": 9.0,
+    "college": "ABC College",
+    "trustScore": 88,
+    "isBigLoan": false,
+    "documents": []
   }
 ]

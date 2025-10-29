@@ -3,6 +3,8 @@
     "id": "com-11",
     "name": "CS Batch 2023",
     "description": "Peer micro-funding for CS students",
+    "scope": "institution",
+    "creatorId": "stu-001",
     "members": ["stu-001"],
     "posts": [
       {
@@ -20,6 +22,8 @@
     "id": "com-22",
     "name": "Robotics Club",
     "description": "Robotics community fund",
+    "scope": "friends",
+    "creatorId": "stu-002",
     "members": ["stu-001", "stu-002"],
     "posts": [
       {

@@ -11,6 +11,13 @@ import { useAuthStore } from '../store/auth.js';
 import Sidebar from '../components/layout/Sidebar.jsx';
 import Topbar from '../components/layout/Topbar.jsx';
 
+function roleHome(role) {
+  if (role === 'mentor') return '/mentor';
+  if (role === 'admin') return '/college-admin';
+  if (role === 'investor') return '/investor';
+  return '/dashboard';
+}
+
 function ProtectedLayout() {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -28,13 +35,14 @@ function ProtectedLayout() {
 }
 
 export default function AppRoutes() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, role } = useAuthStore();
+  const home = roleHome(role);
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to={home} replace /> : <Login />} />
 
       <Route element={<ProtectedLayout />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to={home} replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sef" element={<SEFPage />} />
         <Route path="/community" element={<CommunityFundPage />} />
@@ -44,7 +52,7 @@ export default function AppRoutes() {
         <Route path="/profile" element={<Profile />} />
       </Route>
 
-      <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? home : '/login'} replace />} />
     </Routes>
   );
 }

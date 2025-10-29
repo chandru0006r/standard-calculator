@@ -18,6 +18,8 @@ describe('Trust-Ed-Chain UI', () => {
   it('renders login and navigates after mock login', () => {
     renderApp();
     expect(screen.getByText(/Welcome to Trust-Ed-Chain/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'demo@student.edu' } });
+    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password' } });
     fireEvent.change(screen.getByLabelText(/Role/i), { target: { value: 'student' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
     // Dashboard heading should appear
