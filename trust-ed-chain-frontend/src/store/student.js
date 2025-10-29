@@ -99,6 +99,12 @@ export const useStudentStore = create((set, get) => ({
     return res.data;
   },
 
+  sendCommunityMessage: async (communityId, text, studentId) => {
+    const res = await api.post('/communities/message', { communityId, text, studentId });
+    set({ communities: get().communities.map(c => c.id === communityId ? { ...c, posts: [...c.posts, res.data] } : c) });
+    return res.data;
+  },
+
   adminUpdateSEF: async ({ studentId, sefBalance, sefWithdrawalLimit }) => {
     const res = await api.post('/admin/sef/update', { studentId, sefBalance, sefWithdrawalLimit });
     set({ students: get().students.map(s => s.id === studentId ? res.data : s) });

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 import { useStudentStore } from '../../store/student';
 import MicroPollCard from './MicroPollCard.jsx';
@@ -30,8 +31,9 @@ export default function CommunityCard({ community }) {
       )}
 
       {isMember && (
-        <div className="mb-3">
-          <button className="btn-secondary" onClick={() => leaveCommunity(community.id, user.id)}>Leave Community</button>
+        <div className="mb-3 flex items-center gap-2">
+          <button className="btn-secondary" onClick={() => leaveCommunity(community.id, user.id)}>Leave</button>
+          <Link to={`/community/${community.id}`} className="btn-primary">Open</Link>
         </div>
       )}
 

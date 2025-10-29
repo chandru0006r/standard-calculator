@@ -144,6 +144,15 @@ function registerHandlers(m) {
     com.members = com.members.filter((m) => m !== studentId);
     return ok(com);
   });
+  m.onPost('/api/communities/message').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { communityId, text, studentId } = body;
+    const com = communityList.find((c) => c.id === communityId);
+    if (!com) return notFound('Community not found');
+    const msg = { id: `msg-${Math.floor(Math.random()*100000)}`, type: 'message', text, studentId };
+    com.posts.push(msg);
+    return created(msg);
+  });
   m.onPost('/api/communities/poll').reply((config) => {
     const body = JSON.parse(config.data || '{}');
     const { communityId, studentId, title, amount } = body;
@@ -151,6 +160,7 @@ function registerHandlers(m) {
     if (!com) return notFound('Community not found');
     const newPoll = {
       id: `poll-${Math.floor(Math.random() * 100000)}`,
+      type: 'poll',
       studentId,
       title,
       amount,

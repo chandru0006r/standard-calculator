@@ -3,6 +3,7 @@ import Login from '../pages/Login.jsx';
 import Dashboard from '../pages/Dashboard.jsx';
 import SEFPage from '../pages/SEFPage.jsx';
 import CommunityFundPage from '../pages/CommunityFundPage.jsx';
+import CommunityChatPage from '../pages/CommunityChatPage.jsx';
 import InvestorLoansPage from '../pages/InvestorLoansPage.jsx';
 import MentorDashboard from '../pages/MentorDashboard.jsx';
 import CollegeAdminPanel from '../pages/CollegeAdminPanel.jsx';
@@ -46,6 +47,7 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sef" element={<SEFPage />} />
         <Route path="/community" element={<CommunityFundPage />} />
+        <Route path="/community/:id" element={<CommunityChatPage />} />
         <Route path="/investor" element={<InvestorLoansPage />} />
         <Route path="/mentor" element={<MentorDashboard />} />
         <Route path="/college-admin" element={<CollegeAdminPanel />} />
