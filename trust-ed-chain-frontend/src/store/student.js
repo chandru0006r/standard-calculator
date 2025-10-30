@@ -28,6 +28,27 @@ export const useStudentStore = create((set, get) => ({
     } catch (e) { /* ignore */ }
   },
 
+  adminAssignMentor: async (studentId, mentorId) => {
+    const res = await api.post('/admin/assign-mentor', { studentId, mentorId });
+    set({ students: get().students.map(s => s.id === studentId ? res.data : s) });
+    if (get().student?.id === studentId) set({ student: res.data });
+    return res.data;
+  },
+
+  mentorVerifyKYC: async (studentId, verified = true) => {
+    const res = await api.post('/mentor/verify-kyc', { studentId, verified });
+    set({ students: get().students.map(s => s.id === studentId ? res.data : s) });
+    if (get().student?.id === studentId) set({ student: res.data });
+    return res.data;
+  },
+
+  mentorAddRemark: async (studentId, text) => {
+    const res = await api.post('/mentor/remark', { studentId, text });
+    const updated = get().students.map(s => s.id === studentId ? { ...s, mentorRemarks: [...(s.mentorRemarks || []), res.data] } : s);
+    set({ students: updated });
+    return res.data;
+  },
+
   fetchLoans: async () => {
     try {
       const res = await api.get('/loans');

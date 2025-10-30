@@ -23,11 +23,11 @@ function notFound(msg = 'Not found') { return [404, { message: msg }]; }
 function registerHandlers(m) {
   // Students
   m.onGet(/\/api\/students$/).reply((config) => {
-    const mentorId = new URL('http://x' + (config.url || '')).searchParams.get('mentorId');
-    if (mentorId) {
-      return ok(studentList.filter((s) => s.mentorId === mentorId));
-    }
-    return ok(studentList);
+    const url = new URL('http://x' + (config.url || ''));
+    const mentorId = url.searchParams.get('mentorId');
+    let result = [...studentList];
+    if (mentorId) result = result.filter((s) => s.mentorId === mentorId);
+    return ok(result);
   });
   m.onGet(/\/api\/student\/([^/]+)$/).reply((config) => {
     const id = config.url.split('/').pop();
@@ -44,6 +44,38 @@ function registerHandlers(m) {
     if (typeof sefBalance === 'number') student.sefBalance = sefBalance;
     if (typeof sefWithdrawalLimit === 'number') student.sefWithdrawalLimit = sefWithdrawalLimit;
     return ok(student);
+  });
+
+  // Admin: assign mentor
+  m.onPost('/api/admin/assign-mentor').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { studentId, mentorId } = body;
+    const student = studentList.find((s) => s.id === studentId);
+    if (!student) return notFound('Student not found');
+    student.mentorId = mentorId;
+    return ok(student);
+  });
+
+  // Mentor: verify KYC
+  m.onPost('/api/mentor/verify-kyc').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { studentId, verified } = body;
+    const student = studentList.find((s) => s.id === studentId);
+    if (!student) return notFound('Student not found');
+    student.kycVerified = !!verified;
+    return ok(student);
+  });
+
+  // Mentor: add remark
+  m.onPost('/api/mentor/remark').reply((config) => {
+    const body = JSON.parse(config.data || '{}');
+    const { studentId, text } = body;
+    const student = studentList.find((s) => s.id === studentId);
+    if (!student) return notFound('Student not found');
+    if (!student.mentorRemarks) student.mentorRemarks = [];
+    const remark = { id: `rem-${Date.now()}`, text, at: new Date().toISOString() };
+    student.mentorRemarks.push(remark);
+    return created(remark);
   });
 
   // SEF withdraw
@@ -64,7 +96,9 @@ function registerHandlers(m) {
   });
 
   // Loans
-  m.onGet(/\/api\/loans$/).reply(() => ok(loanList));
+  m.onGet(/\/api\/loans$/).reply((config) => {
+    return ok(loanList);
+  });
   m.onGet(/\/api\/loans\/([^/]+)$/).reply((config) => {
     const id = config.url.split('/').pop();
     const loan = loanList.find((l) => l.id === id);

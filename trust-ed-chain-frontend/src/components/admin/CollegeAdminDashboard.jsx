@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStudentStore } from '../../store/student';
 
 export default function CollegeAdminDashboard() {
   const [mentors, setMentors] = useState([{ id: 'men-101', name: 'Dr. Rao' }]);
   const [name, setName] = useState('');
-  const { students, loans, fetchStudents, fetchLoans, adminUpdateSEF, adminApproveLoan } = useStudentStore();
+  const { students, loans, fetchStudents, fetchLoans, adminUpdateSEF, adminApproveLoan, adminAssignMentor } = useStudentStore();
+
+  const [search, setSearch] = useState('');
+  const [department, setDepartment] = useState('all');
+  const [mentor, setMentor] = useState('all');
+  const [minCGPA, setMinCGPA] = useState('');
+  const [minTrust, setMinTrust] = useState('');
 
   useEffect(() => {
     fetchStudents();
@@ -12,6 +18,19 @@ export default function CollegeAdminDashboard() {
   }, [fetchStudents, fetchLoans]);
 
   const bigLoans = loans.filter(l => l.isBigLoan && l.mentorApproved && !l.adminApproved);
+
+  const departments = useMemo(() => Array.from(new Set(students.map(s => s.department).filter(Boolean))), [students]);
+  const mentorOptions = useMemo(() => Array.from(new Set([...(mentors?.map(m => m.id) || []), ...students.map(s => s.mentorId).filter(Boolean)])), [mentors, students]);
+
+  const filteredStudents = useMemo(() => students.filter(s => {
+    const q = search.trim().toLowerCase();
+    if (q && !(`${s.name} ${s.email} ${s.id}`.toLowerCase().includes(q))) return false;
+    if (department !== 'all' && s.department !== department) return false;
+    if (mentor !== 'all' && s.mentorId !== mentor) return false;
+    if (minCGPA && Number(s.cgpa) < Number(minCGPA)) return false;
+    if (minTrust && Number(s.trustScore) < Number(minTrust)) return false;
+    return true;
+  }), [students, search, department, mentor, minCGPA, minTrust]);
 
   const addMentor = (e) => {
     e.preventDefault();
@@ -47,26 +66,56 @@ export default function CollegeAdminDashboard() {
       </div>
 
       <div className="card p-4">
-        <h3 className="font-semibold mb-3">Manage Student SEF</h3>
+        <h3 className="font-semibold mb-3">Students</h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-4">
+          <input className="input" placeholder="Search name/email/id" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <select className="input" value={department} onChange={(e) => setDepartment(e.target.value)}>
+            <option value="all">All Departments</option>
+            {departments.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <select className="input" value={mentor} onChange={(e) => setMentor(e.target.value)}>
+            <option value="all">All Mentors</option>
+            {mentorOptions.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+          <input className="input" type="number" placeholder="Min CGPA" value={minCGPA} onChange={(e) => setMinCGPA(e.target.value)} />
+          <input className="input" type="number" placeholder="Min Trust" value={minTrust} onChange={(e) => setMinTrust(e.target.value)} />
+        </div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="text-left">
                 <th className="p-2">Student</th>
+                <th className="p-2">Dept</th>
+                <th className="p-2">Mentor</th>
                 <th className="p-2">Balance</th>
                 <th className="p-2">Limit</th>
-                <th className="p-2">Action</th>
+                <th className="p-2">Assign</th>
+                <th className="p-2">Save SEF</th>
               </tr>
             </thead>
             <tbody>
-              {students.map((s) => (
+              {filteredStudents.map((s) => (
                 <tr key={s.id} className="border-t border-gray-200 dark:border-gray-800">
-                  <td className="p-2">{s.name}</td>
+                  <td className="p-2">
+                    <div className="font-medium">{s.name}</div>
+                    <div className="text-xs text-gray-500">{s.id}</div>
+                  </td>
+                  <td className="p-2">{s.department}</td>
+                  <td className="p-2">
+                    <select className="input" defaultValue={s.mentorId || ''} onChange={(e) => { s.__newMentor = e.target.value; }}>
+                      <option value="">Unassigned</option>
+                      {mentorOptions.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </td>
                   <td className="p-2">
                     <input className="input" type="number" defaultValue={s.sefBalance} onChange={(e) => { s.__newBalance = Number(e.target.value); }} />
                   </td>
                   <td className="p-2">
                     <input className="input" type="number" defaultValue={s.sefWithdrawalLimit} onChange={(e) => { s.__newLimit = Number(e.target.value); }} />
+                  </td>
+                  <td className="p-2">
+                    <button className="btn-secondary" onClick={() => adminAssignMentor(s.id, s.__newMentor || s.mentorId)}>Assign</button>
                   </td>
                   <td className="p-2">
                     <button className="btn-secondary" onClick={() => adminUpdateSEF({ studentId: s.id, sefBalance: s.__newBalance ?? s.sefBalance, sefWithdrawalLimit: s.__newLimit ?? s.sefWithdrawalLimit })}>Save</button>
